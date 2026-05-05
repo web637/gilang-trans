@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gilang Trans – Travel Cianjur Terbaik</title>
+  
+    <link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-main">Gilang Trans</span>
+          <span class="logo-sub">Travel Cianjur</span>
+        </div>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="#" class="nav-link active">Home</a>
+        <a href="#marketplace" class="nav-link">Travel</a>
+        <a href="#tentang" class="nav-link">Tentang</a>
+        <a href="#kontak" class="nav-link">Kontak</a>
+        <a href="https://wa.me/6285724615368" target="_blank" class="nav-cta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Pesan Sekarang
+        </a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <span class="theme-icon sun">☀️</span>
+          <span class="theme-icon moon">🌙</span>
+        </button>
+        <button class="hamburger" id="hamburger">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO MINI ===== -->
+  <section class="hero-mini" id="home">
+    <div class="hero-mini-inner">
+      <div class="hero-mini-text">
+        <div class="hero-badge">✈ Armada Terpercaya Sejak 2010</div>
+        <h1>Temukan Rute Travel <span>Terbaik</span> dari Cianjur</h1>
+        <p>Perjalanan nyaman, aman & terjangkau ke seluruh Jawa. Door-to-door, AC dingin, driver berpengalaman.</p>
+        <div class="hero-stats">
+          <div class="stat-item"><strong>10K+</strong><span>Penumpang</span></div>
+          <div class="stat-item"><strong>15+</strong><span>Rute Aktif</span></div>
+          <div class="stat-item"><strong>4.9★</strong><span>Rating</span></div>
+        </div>
+      </div>
+      <div class="hero-mini-search">
+        <div class="search-widget">
+          <h3>Cari Perjalanan</h3>
+          <div class="search-field">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="heroSearch" placeholder="Cari tujuan (contoh: Jakarta, Bandung...)" />
+          </div>
+          <button class="btn-search-hero" onclick="document.getElementById('marketplace').scrollIntoView({behavior:'smooth'})">
+            Cari Sekarang →
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MARKETPLACE ===== -->
+  <section class="marketplace" id="marketplace">
+    <div class="marketplace-inner">
+
+      <!-- SIDEBAR FILTER -->
+      <aside class="filter-sidebar" id="filterSidebar">
+        <div class="filter-header">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filter By
+          </h3>
+          <button class="filter-reset" id="filterReset">Reset</button>
+        </div>
+
+        <!-- Destination Filter -->
+        <div class="filter-section" id="destinationFilter">
+          <div class="filter-section-header" onclick="toggleFilterSection(this)">
+            <span>Destination</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+          </div>
+          <div class="filter-section-body">
+            <label class="filter-checkbox">
+              <input type="checkbox" value="jakarta" onchange="applyFilters()">
+              <span class="checkmark"></span>
+              <span>Travel Cianjur Jakarta</span>
+              <span class="count" id="count-jakarta"></span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="bandung" onchange="applyFilters()">
+              <span class="checkmark"></span>
+              <span>Travel Cianjur Bandung</span>
+              <span class="count" id="count-bandung"></span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="semarang" onchange="applyFilters()">
+              <span class="checkmark"></span>
+              <span>Travel Cianjur Semarang</span>
+              <span class="count" id="count-semarang"></span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="yogyakarta" onchange="applyFilters()">
+              <span class="checkmark"></span>
+              <span>Travel Cianjur Yogyakarta</span>
+              <span class="count" id="count-yogyakarta"></span>
+            </label>
+            <div class="filter-more" id="filterMoreDest" style="display:none">
+              <label class="filter-checkbox">
+                <input type="checkbox" value="lain" onchange="applyFilters()">
+                <span class="checkmark"></span>
+                <span>Travel Cianjur Lainnya</span>
+                <span class="count" id="count-lain"></span>
+              </label>
+            </div>
+            <button class="show-more-btn" id="showMoreDest" onclick="toggleShowMore('filterMoreDest','showMoreDest')">
+              + Show More
+            </button>
+          </div>
+        </div>
+
+        <!-- Price Filter -->
+        <div class="filter-section" id="priceFilter">
+          <div class="filter-section-header" onclick="toggleFilterSection(this)">
+            <span>Price Range</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+          </div>
+          <div class="filter-section-body">
+            <div class="range-slider-wrap">
+              <div class="range-labels">
+                <span id="priceMin">Rp 0</span>
+                <span id="priceMax">Rp 500.000</span>
+              </div>
+              <div class="range-track">
+                <div class="range-fill" id="rangeFill"></div>
+                <input type="range" id="rangeMinPrice" min="0" max="500000" step="10000" value="0" oninput="updatePriceRange()">
+                <input type="range" id="rangeMaxPrice" min="0" max="500000" step="10000" value="500000" oninput="updatePriceRange()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Duration Filter -->
+        <div class="filter-section" id="durationFilter">
+          <div class="filter-section-header" onclick="toggleFilterSection(this)">
+            <span>Duration</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+          </div>
+          <div class="filter-section-body">
+            <label class="filter-checkbox">
+              <input type="checkbox" value="1" onchange="applyFilters()" class="dur-filter">
+              <span class="checkmark"></span>
+              <span>1 Hari</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="2" onchange="applyFilters()" class="dur-filter">
+              <span class="checkmark"></span>
+              <span>2 Hari</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Fasilitas Filter -->
+        <div class="filter-section">
+          <div class="filter-section-header" onclick="toggleFilterSection(this)">
+            <span>Fasilitas</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+          </div>
+          <div class="filter-section-body">
+            <label class="filter-checkbox">
+              <input type="checkbox" value="door" onchange="applyFilters()" class="fas-filter">
+              <span class="checkmark"></span>
+              <span>Door to Door</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="charger" onchange="applyFilters()" class="fas-filter">
+              <span class="checkmark"></span>
+              <span>Charger USB</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="wifi" onchange="applyFilters()" class="fas-filter">
+              <span class="checkmark"></span>
+              <span>WiFi</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Featured Only -->
+        <div class="filter-section">
+          <div class="filter-section-header" onclick="toggleFilterSection(this)">
+            <span>Lainnya</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+          </div>
+          <div class="filter-section-body">
+            <label class="filter-checkbox">
+              <input type="checkbox" id="featuredOnly" onchange="applyFilters()">
+              <span class="checkmark"></span>
+              <span>Featured Only</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Mobile Close -->
+        <button class="filter-close-btn" id="filterCloseBtn" onclick="closeSidebar()">✕ Tutup Filter</button>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="main-content">
+
+        <!-- TOP BAR -->
+        <div class="topbar">
+          <div class="topbar-left">
+            <button class="filter-toggle-btn" id="filterToggleBtn" onclick="openSidebar()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              Filter
+            </button>
+            <div class="search-bar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" id="searchInput" placeholder="Cari rute travel..." oninput="applyFilters()" />
+              <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none">✕</button>
+            </div>
+          </div>
+          <div class="topbar-right">
+            <div class="result-count"><span id="resultCount">0</span> Rute Ditemukan</div>
+            <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+              <option value="newest">Terbaru</option>
+              <option value="cheapest">Termurah</option>
+              <option value="priciest">Termahal</option>
+              <option value="name">A-Z</option>
+            </select>
+            <div class="view-toggle">
+              <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')" title="Grid view">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              </button>
+              <button class="view-btn" id="listViewBtn" onclick="setView('list')" title="List view">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIVE FILTERS TAGS -->
+        <div class="active-filters" id="activeFilters" style="display:none"></div>
+
+        <!-- RECENTLY VIEWED -->
+        <div class="recently-viewed" id="recentlyViewed" style="display:none">
+          <div class="rv-header">
+            <span>🕐 Baru Dilihat</span>
+            <button onclick="clearRecentlyViewed()">Hapus</button>
+          </div>
+          <div class="rv-list" id="rvList"></div>
+        </div>
+
+        <!-- CARD GRID -->
+        <div class="cards-grid" id="cardsGrid">
+          <!-- JS generated -->
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div class="empty-state" id="emptyState" style="display:none">
+          <div class="empty-icon">🔍</div>
+          <h3>Tidak ada rute ditemukan</h3>
+          <p>Coba ubah filter atau kata kunci pencarian</p>
+          <button onclick="resetAllFilters()" class="btn-reset-all">Reset Semua Filter</button>
+        </div>
+
+        <!-- LOAD MORE -->
+        <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+          <button class="btn-load-more" id="loadMoreBtn" onclick="loadMore()">
+            Muat Lebih Banyak
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          </button>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ===== SIDEBAR OVERLAY ===== -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- ===== MODAL DETAIL ===== -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-box" id="modalBox">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-content" id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- ===== CHATBOT ===== -->
+  <div class="chatbot-wrap" id="chatbotWrap">
+    <div class="chatbot-box" id="chatbotBox">
+      <div class="chatbot-header">
+        <div class="chatbot-avatar">RT</div>
+        <div>
+          <div class="chatbot-name">Gilang Assistant</div>
+          <div class="chatbot-status">● Online</div>
+        </div>
+        <button class="chatbot-header-close" onclick="toggleChatbot()">✕</button>
+      </div>
+      <div class="chatbot-messages" id="chatbotMessages">
+        <div class="chat-msg bot">
+          <div class="chat-bubble">Halo! 👋 Saya asisten Gilang Trans. Ketik <strong>harga</strong>, <strong>jadwal</strong>, <strong>rute</strong>, atau <strong>booking</strong> untuk info.</div>
+        </div>
+      </div>
+      <div class="chatbot-input-wrap">
+        <input type="text" id="chatInput" placeholder="Ketik pesan..." onkeydown="if(event.key==='Enter')sendChat()" />
+        <button onclick="sendChat()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="chatbot-fabs">
+      <a href="tel:085724615368" class="fab fab-call" title="Telepon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.64A2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14h0v2.92z"/></svg>
+      </a>
+      <a href="https://wa.me/6285724615368" target="_blank" class="fab fab-wa" title="WhatsApp">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+      <button class="fab fab-chat" id="chatFab" onclick="toggleChatbot()" title="Chat">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <span class="fab-dot"></span>
+      </button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
