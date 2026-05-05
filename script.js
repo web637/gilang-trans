@@ -619,7 +619,7 @@ function openModal(id) {
         <button class="modal-btn primary" onclick="window.location.href='tel:08822585093'">
           📞 Telepon Kami
         </button>
-        <a class="modal-btn wa" href="https://wa.me/6285724615368?text=Halo%20Rayyan%20Trans%2C%20saya%20ingin%20booking%20${encodeURIComponent(trip.nama)}%20seharga%20${encodeURIComponent(trip.hargaText)}" target="_blank">
+        <a class="modal-btn wa" href="https://wa.me/6285724615368?text=Halo%20Gilang%20Trans%2C%20saya%20ingin%20booking%20${encodeURIComponent(trip.nama)}%20seharga%20${encodeURIComponent(trip.hargaText)}" target="_blank">
           💬 Booking WhatsApp
         </a>
       </div>
@@ -704,7 +704,7 @@ function botReply(msg) {
   } else if (msg.includes('booking') || msg.includes('pesan') || msg.includes('order')) {
     reply = '📱 Kami redirect ke WhatsApp untuk booking!';
     setTimeout(() => {
-      window.open('https://wa.me/6285724615368?text=Halo%20Rayyan%20Trans%2C%20saya%20ingin%20booking%20travel', '_blank');
+      window.open('https://wa.me/6285724615368?text=Halo%20Gilang%20Trans%2C%20saya%20ingin%20booking%20travel', '_blank');
     }, 1000);
 
   } else if (msg.includes('fasilitas') || msg.includes('fitur') || msg.includes('layanan')) {
@@ -714,7 +714,7 @@ function botReply(msg) {
     reply = '📞 <strong>Kontak Kami:</strong><br>WhatsApp: <a href="https://wa.me/6285724615368" target="_blank" style="color:var(--primary)">0882-2585-093</a><br>Aktif 24 jam!';
 
   } else if (msg.includes('halo') || msg.includes('hai') || msg.includes('hello') || msg.includes('hi')) {
-    reply = '👋 Halo! Selamat datang di <strong>Rayyan Trans</strong>! Saya bisa bantu info harga, jadwal, rute, atau booking. Ketik salah satunya!';
+    reply = '👋 Halo! Selamat datang di <strong>Gilang Trans</strong>! Saya bisa bantu info harga, jadwal, rute, atau booking. Ketik salah satunya!';
 
   } else if (msg.includes('bandara') || msg.includes('airport') || msg.includes('cgk') || msg.includes('soeta')) {
     reply = '✈️ <strong>Travel Bandara (CGK):</strong><br>Harga: Rp 200.000/orang<br>Jadwal: 02:00 – 20:00 (setiap 2 jam)<br>Langsung ke Terminal!';

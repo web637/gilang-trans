@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel – Gilang Trans</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <!-- SheetJS for Excel export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #1a56db;
+      --primary-light: #eff6ff;
+      --primary-hover: #1648c0;
+      --accent: #25d366;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --bg: #f3f4f6;
+      --bg-card: #ffffff;
+      --border: #e5e7eb;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow: 0 4px 16px rgba(0,0,0,0.08);
+      --shadow-md: 0 8px 30px rgba(0,0,0,0.12);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --sidebar-w: 260px;
+      --font: 'Plus Jakarta Sans', sans-serif;
+      --font-heading: 'Sora', sans-serif;
+      --navbar-h: 64px;
+    }
+    [data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-light: #1e3a5f;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --bg: #0f172a;
+      --bg-card: #1e293b;
+      --border: #334155;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow: 0 4px 16px rgba(0,0,0,0.3);
+      --shadow-md: 0 8px 30px rgba(0,0,0,0.4);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ===== LOGIN OVERLAY ===== */
+    #loginOverlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #0f172a 0%, #1a56db 50%, #0f172a 100%);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+    }
+    #loginOverlay.hidden { display: none; }
+    .login-box {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%; max-width: 400px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+      margin: 16px;
+    }
+    .login-logo {
+      display: flex; align-items: center; gap: 10px;
+      justify-content: center; margin-bottom: 8px;
+    }
+    .login-logo-icon {
+      width: 44px; height: 44px;
+      background: var(--primary); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; color: white;
+    }
+    .login-logo-text { font-family: var(--font-heading); font-size: 20px; font-weight: 800; }
+    .login-sub { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
+    .login-title { text-align: center; font-family: var(--font-heading); font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
+    .form-group input {
+      width: 100%; padding: 12px 14px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border); background: var(--bg);
+      color: var(--text); font-family: var(--font); font-size: 14px;
+      outline: none; transition: border 0.2s;
+    }
+    .form-group input:focus { border-color: var(--primary); }
+    .login-btn {
+      width: 100%; padding: 13px; background: var(--primary);
+      color: white; border: none; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+      margin-top: 4px;
+    }
+    .login-btn:hover { background: var(--primary-hover); }
+    .login-err { color: var(--danger); font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+    .login-back { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-muted); }
+    .login-back a { color: var(--primary); font-weight: 600; cursor: pointer; }
+
+    /* ===== ADMIN LAYOUT ===== */
+    #adminApp { display: none; }
+    #adminApp.show { display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); min-height: 100vh;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; z-index: 100;
+      transition: transform 0.3s;
+    }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 10px;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-brand-icon {
+      width: 38px; height: 38px; background: var(--primary);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0;
+    }
+    .sidebar-brand-text { font-family: var(--font-heading); font-weight: 800; font-size: 15px; }
+    .sidebar-brand-sub { font-size: 11px; color: var(--text-muted); }
+    .sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--text-muted); text-transform: uppercase;
+      padding: 0 8px; margin: 16px 0 6px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      color: var(--text-muted); transition: all 0.15s; margin-bottom: 2px;
+    }
+    .sidebar-link:hover { background: var(--bg); color: var(--text); }
+    .sidebar-link.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+    .sidebar-link svg { flex-shrink: 0; }
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+    }
+    .sidebar-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--primary); display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 13px; flex-shrink: 0;
+    }
+    .sidebar-user-name { font-size: 13px; font-weight: 600; }
+    .sidebar-user-role { font-size: 11px; color: var(--text-muted); }
+
+    /* MAIN CONTENT */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      height: var(--navbar-h); background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-title { font-family: var(--font-heading); font-size: 18px; font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .btn-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      border: 1px solid var(--border); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-muted); transition: all 0.15s;
+    }
+    .btn-icon:hover { background: var(--bg); color: var(--text); }
+    .sidebar-toggle { display: none; }
+    .hamburger-btn {
+      display: none; width: 38px; height: 38px; border-radius: 10px;
+      border: 1px solid var(--border); background: transparent;
+      align-items: center; justify-content: center; cursor: pointer; color: var(--text);
+    }
+
+    /* PAGE CONTENT */
+    .page-content { padding: 24px; flex: 1; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* STAT CARDS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px; margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--bg-card); border-radius: var(--radius);
+      padding: 20px; border: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .stat-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .stat-icon.blue { background: #eff6ff; }
+    .stat-icon.green { background: #ecfdf5; }
+    .stat-icon.orange { background: #fff7ed; }
+    .stat-icon.purple { background: #f5f3ff; }
+    .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    .stat-value { font-size: 24px; font-weight: 800; font-family: var(--font-heading); }
+    .stat-change { font-size: 12px; color: var(--success); font-weight: 600; }
+
+    /* CARD SECTION */
+    .section-card {
+      background: var(--bg-card); border-radius: var(--radius);
+      border: 1px solid var(--border); margin-bottom: 20px; overflow: hidden;
+    }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px;
+    }
+    .section-title { font-family: var(--font-heading); font-size: 15px; font-weight: 700; }
+    .section-body { padding: 20px; }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text-muted); padding: 10px 12px;
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    td {
+      padding: 12px 12px; border-bottom: 1px solid var(--border);
+      font-size: 14px; vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg); }
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 99px;
+      font-size: 12px; font-weight: 600;
+    }
+    .badge-success { background: #ecfdf5; color: #059669; }
+    .badge-warning { background: #fffbeb; color: #d97706; }
+    .badge-danger { background: #fef2f2; color: #dc2626; }
+    .badge-info { background: #eff6ff; color: #2563eb; }
+    .action-btns { display: flex; gap: 6px; }
+    .btn-sm {
+      padding: 5px 10px; border-radius: 7px; font-size: 12px;
+      font-family: var(--font); font-weight: 600; cursor: pointer;
+      border: none; transition: all 0.15s;
+    }
+    .btn-sm.edit { background: var(--primary-light); color: var(--primary); }
+    .btn-sm.edit:hover { background: var(--primary); color: white; }
+    .btn-sm.del { background: #fef2f2; color: var(--danger); }
+    .btn-sm.del:hover { background: var(--danger); color: white; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 16px; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-outline {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { background: var(--bg); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #dc2626; }
+
+    /* FORM */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-full { grid-column: 1 / -1; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+    .field input, .field select, .field textarea {
+      padding: 10px 12px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border); background: var(--bg);
+      color: var(--text); font-family: var(--font); font-size: 14px; outline: none;
+      transition: border 0.2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--primary); }
+    .field textarea { resize: vertical; min-height: 80px; }
+    .field .hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+      background: var(--bg-card); border-radius: 16px;
+      width: 100%; max-width: 580px; max-height: 90vh;
+      overflow-y: auto; box-shadow: var(--shadow-md);
+    }
+    .modal-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--bg-card); z-index: 1;
+    }
+    .modal-head h3 { font-family: var(--font-heading); font-size: 16px; font-weight: 700; }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      border: 1px solid var(--border); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-muted); font-size: 16px;
+    }
+    .modal-body-pad { padding: 20px; }
+    .modal-footer {
+      display: flex; gap: 10px; justify-content: flex-end;
+      padding: 16px 20px; border-top: 1px solid var(--border);
+    }
+
+    /* SEARCH BAR */
+    .search-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 8px 12px;
+    }
+    .search-bar input {
+      border: none; background: transparent; color: var(--text);
+      font-family: var(--font); font-size: 13px; outline: none; flex: 1;
+    }
+    .search-bar svg { color: var(--text-muted); flex-shrink: 0; }
+
+    /* CHART PLACEHOLDER */
+    .chart-area {
+      height: 200px; background: var(--bg); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: 14px; position: relative; overflow: hidden;
+    }
+    .chart-bars {
+      display: flex; align-items: flex-end; gap: 6px;
+      height: 160px; position: absolute; bottom: 20px; left: 20px; right: 20px;
+    }
+    .chart-bar {
+      flex: 1; background: var(--primary); border-radius: 4px 4px 0 0;
+      opacity: 0.7; transition: opacity 0.2s; cursor: pointer; position: relative;
+    }
+    .chart-bar:hover { opacity: 1; }
+    .chart-bar-label {
+      position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; color: var(--text-muted); white-space: nowrap;
+    }
+
+    /* IMAGE PREVIEW */
+    .img-preview-wrap {
+      width: 100%; height: 140px; border-radius: 10px;
+      border: 2px dashed var(--border); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; overflow: hidden; position: relative;
+      background: var(--bg);
+    }
+    .img-preview-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .img-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 13px; font-weight: 600; opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .img-preview-wrap:hover .img-overlay { opacity: 1; }
+    .img-placeholder { text-align: center; color: var(--text-muted); }
+    .img-placeholder svg { margin: 0 auto 6px; display: block; }
+
+    /* CHIPS INPUT */
+    .chips-wrap {
+      display: flex; flex-wrap: wrap; gap: 5px;
+      padding: 8px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border); background: var(--bg); min-height: 46px;
+    }
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: 6px;
+      background: var(--primary-light); color: var(--primary);
+      font-size: 12px; font-weight: 600;
+    }
+    .chip button { background: none; border: none; cursor: pointer; color: inherit; padding: 0; line-height: 1; }
+    .chips-input {
+      border: none; background: transparent; outline: none;
+      font-family: var(--font); font-size: 13px; color: var(--text); flex: 1; min-width: 80px;
+    }
+
+    /* CONFIRM DIALOG */
+    .confirm-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    .confirm-overlay.hidden { display: none; }
+    .confirm-box {
+      background: var(--bg-card); border-radius: 16px;
+      padding: 28px; max-width: 380px; width: 100%; text-align: center;
+      box-shadow: var(--shadow-md);
+    }
+    .confirm-icon { font-size: 40px; margin-bottom: 12px; }
+    .confirm-title { font-family: var(--font-heading); font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .confirm-msg { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+    .confirm-btns { display: flex; gap: 10px; }
+    .confirm-btns button { flex: 1; }
+
+    /* TOAST */
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9000;
+      display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+    }
+    .toast {
+      background: #1e293b; color: white; padding: 12px 16px;
+      border-radius: 10px; font-size: 13px; font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      display: flex; align-items: center; gap: 8px;
+      animation: toastIn 0.3s ease; pointer-events: auto;
+    }
+    .toast.success { background: #059669; }
+    .toast.error { background: var(--danger); }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* SIDEBAR OVERLAY (mobile) */
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0; z-index: 99;
+      background: rgba(0,0,0,0.5);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay { display: block; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+      .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+      .main-content { margin-left: 0; }
+      .hamburger-btn { display: flex; }
+      .sidebar-toggle { display: none; }
+    }
+    @media (max-width: 600px) {
+      .page-content { padding: 16px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .topbar { padding: 0 16px; }
+    }
+    @media (max-width: 400px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    /* MISC */
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .flex-wrap { flex-wrap: wrap; }
+    .ml-auto { margin-left: auto; }
+    .text-muted { color: var(--text-muted); font-size: 13px; }
+    .fw-bold { font-weight: 700; }
+    .page-header { margin-bottom: 20px; }
+    .page-header h2 { font-family: var(--font-heading); font-size: 22px; font-weight: 800; }
+    .page-header p { color: var(--text-muted); font-size: 14px; margin-top: 2px; }
+    .rute-text { font-size: 12px; color: var(--text-muted); }
+    .thumb-img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .route-flex { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+    .route-stop-sm { font-size: 11px; background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+    input[type="file"] { display: none; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+    .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+    .empty-state svg { margin: 0 auto 12px; display: block; opacity: 0.3; }
+    .trip-icon-cell { font-size: 24px; width: 36px; text-align: center; }
+  </style>
+</head>
+<body>
+
+<!-- ===== LOGIN OVERLAY ===== -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="login-logo-text">Gilang Trans</div>
+    </div>
+    <div class="login-title">Admin Panel</div>
+    <div class="login-sub">Masuk ke dasbor pengelolaan</div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="admin@gilangtrans.com" autocomplete="username" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter') doLogin()" />
+    </div>
+    <button class="login-btn" onclick="doLogin()">Masuk →</button>
+    <div class="login-err" id="loginErr">❌ Email atau password salah</div>
+    <div class="login-back">
+      <a onclick="window.location.href='index.html'">← Kembali ke Website</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN APP ===== -->
+<div id="adminApp">
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="sidebar-brand-text">Gilang Trans</div>
+        <div class="sidebar-brand-sub">Admin Panel</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Utama</div>
+      <div class="sidebar-link active" onclick="showPage('dashboard', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="sidebar-link" onclick="showPage('transaksi', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Histori Transaksi
+      </div>
+      <div class="nav-section-label">Kelola</div>
+      <div class="sidebar-link" onclick="showPage('rute', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Kelola Rute
+      </div>
+      <div class="sidebar-link" onclick="showPage('harga', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Kelola Harga
+      </div>
+      <div class="nav-section-label">Laporan</div>
+      <div class="sidebar-link" onclick="showPage('laporan', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Laporan & Ekspor
+      </div>
+      <div class="nav-section-label">Pengaturan</div>
+      <div class="sidebar-link" onclick="showPage('pengaturan', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M17.66 17.66l-1.41-1.41M6.34 17.66l1.41-1.41"/></svg>
+        Pengaturan
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-link" onclick="doLogout()" style="color:var(--danger)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Keluar
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="topbar-title" id="pageTitle">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-icon" onclick="toggleTheme()" title="Ganti tema">
+          <svg width="16" height="16" id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <a href="index.html" class="btn-icon" title="Lihat website">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- ===== DASHBOARD PAGE ===== -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <h2>Selamat Datang 👋</h2>
+          <p>Ringkasan performa Gilang Trans hari ini</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">🗺️</div>
+            <div>
+              <div class="stat-label">Total Rute</div>
+              <div class="stat-value" id="statRute">12</div>
+              <div class="stat-change">Aktif semua</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">💰</div>
+            <div>
+              <div class="stat-label">Total Transaksi</div>
+              <div class="stat-value" id="statTrx">0</div>
+              <div class="stat-change">Bulan ini</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">📦</div>
+            <div>
+              <div class="stat-label">Pendapatan</div>
+              <div class="stat-value" id="statPendapatan">Rp 0</div>
+              <div class="stat-change">Estimasi</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">⭐</div>
+            <div>
+              <div class="stat-label">Rute Featured</div>
+              <div class="stat-value" id="statFeatured">6</div>
+              <div class="stat-change">Ditampilkan</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">📊 Transaksi per Bulan</span>
+            <span class="text-muted">2026</span>
+          </div>
+          <div class="section-body">
+            <div class="chart-area">
+              <div class="chart-bars" id="chartBars"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent transactions -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">🕐 Transaksi Terbaru</span>
+            <button class="btn btn-outline" onclick="showPage('transaksi', document.querySelector('[onclick*=transaksi]'))">Lihat Semua</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nama</th>
+                  <th>Rute</th>
+                  <th>Harga</th>
+                  <th>Status</th>
+                  <th>Waktu</th>
+                </tr>
+              </thead>
+              <tbody id="recentTrxBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TRANSAKSI PAGE ===== -->
+      <div class="page" id="page-transaksi">
+        <div class="page-header">
+          <h2>Histori Transaksi</h2>
+          <p>Semua riwayat pemesanan pelanggan</p>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <div class="search-bar" style="flex:1;max-width:300px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Cari nama, rute..." id="trxSearch" oninput="renderTrxTable()" />
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <select id="trxStatusFilter" onchange="renderTrxTable()" style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px">
+                <option value="">Semua Status</option>
+                <option value="Selesai">Selesai</option>
+                <option value="Pending">Pending</option>
+                <option value="Batal">Batal</option>
+              </select>
+              <button class="btn btn-success" onclick="exportTrxExcel()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Ekspor Excel
+              </button>
+              <button class="btn btn-primary" onclick="openAddTrx()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Tambah
+              </button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#ID</th>
+                  <th>Nama Penumpang</th>
+                  <th>Rute</th>
+                  <th>Harga</th>
+                  <th>Jadwal</th>
+                  <th>Status</th>
+                  <th>Tanggal</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="trxBody"></tbody>
+            </table>
+          </div>
+          <div id="trxEmpty" class="empty-state" style="display:none">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <p>Belum ada transaksi</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== RUTE PAGE ===== -->
+      <div class="page" id="page-rute">
+        <div class="page-header">
+          <h2>Kelola Rute</h2>
+          <p>Tambah, ubah, atau hapus rute perjalanan</p>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <div class="search-bar" style="flex:1;max-width:300px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Cari rute..." id="ruteSearch" oninput="renderRuteTable()" />
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-success" onclick="exportRuteExcel()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Ekspor
+              </button>
+              <button class="btn btn-primary" onclick="openAddRute()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Tambah Rute
+              </button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Icon</th>
+                  <th>Nama Rute</th>
+                  <th>Harga</th>
+                  <th>Kategori</th>
+                  <th>Durasi</th>
+                  <th>Jadwal</th>
+                  <th>Featured</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="ruteBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== HARGA PAGE ===== -->
+      <div class="page" id="page-harga">
+        <div class="page-header">
+          <h2>Kelola Harga</h2>
+          <p>Ubah harga rute dengan cepat</p>
+        </div>
+        <div class="stats-grid" style="margin-bottom:20px">
+          <div class="stat-card">
+            <div class="stat-icon blue">📉</div>
+            <div><div class="stat-label">Harga Termurah</div><div class="stat-value" id="hargaMin">-</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">📈</div>
+            <div><div class="stat-label">Harga Termahal</div><div class="stat-value" id="hargaMax">-</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">📊</div>
+            <div><div class="stat-label">Rata-rata Harga</div><div class="stat-value" id="hargaAvg">-</div></div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">Daftar Harga Rute</span>
+            <button class="btn btn-success" onclick="exportHargaExcel()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Ekspor Excel
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Icon</th>
+                  <th>Nama Rute</th>
+                  <th>Harga Saat Ini</th>
+                  <th>Harga Baru</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="hargaBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== LAPORAN PAGE ===== -->
+      <div class="page" id="page-laporan">
+        <div class="page-header">
+          <h2>Laporan & Ekspor</h2>
+          <p>Unduh laporan dalam format Excel</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="section-card" style="padding:20px;cursor:pointer" onclick="exportTrxExcel()">
+            <div class="flex items-center gap-3">
+              <div class="stat-icon green" style="width:52px;height:52px;font-size:26px">📊</div>
+              <div>
+                <div class="fw-bold">Laporan Transaksi</div>
+                <div class="text-muted">Semua histori pemesanan</div>
+              </div>
+              <button class="btn btn-success ml-auto">Unduh XLS</button>
+            </div>
+          </div>
+          <div class="section-card" style="padding:20px;cursor:pointer" onclick="exportRuteExcel()">
+            <div class="flex items-center gap-3">
+              <div class="stat-icon blue" style="width:52px;height:52px;font-size:26px">🗺️</div>
+              <div>
+                <div class="fw-bold">Laporan Rute</div>
+                <div class="text-muted">Data semua rute aktif</div>
+              </div>
+              <button class="btn btn-primary ml-auto">Unduh XLS</button>
+            </div>
+          </div>
+          <div class="section-card" style="padding:20px;cursor:pointer" onclick="exportHargaExcel()">
+            <div class="flex items-center gap-3">
+              <div class="stat-icon orange" style="width:52px;height:52px;font-size:26px">💰</div>
+              <div>
+                <div class="fw-bold">Laporan Harga</div>
+                <div class="text-muted">Daftar harga semua rute</div>
+              </div>
+              <button class="btn ml-auto" style="background:#f59e0b;color:white">Unduh XLS</button>
+            </div>
+          </div>
+          <div class="section-card" style="padding:20px;cursor:pointer" onclick="exportAllExcel()">
+            <div class="flex items-center gap-3">
+              <div class="stat-icon purple" style="width:52px;height:52px;font-size:26px">📦</div>
+              <div>
+                <div class="fw-bold">Laporan Lengkap</div>
+                <div class="text-muted">Semua data dalam 1 file</div>
+              </div>
+              <button class="btn ml-auto" style="background:#7c3aed;color:white">Unduh XLS</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">📋 Ringkasan Sistem</span>
+          </div>
+          <div class="section-body">
+            <div class="stats-grid" style="margin:0">
+              <div><div class="text-muted">Total Rute</div><div class="fw-bold" style="font-size:20px" id="lapRute">-</div></div>
+              <div><div class="text-muted">Rute Featured</div><div class="fw-bold" style="font-size:20px" id="lapFeatured">-</div></div>
+              <div><div class="text-muted">Total Transaksi</div><div class="fw-bold" style="font-size:20px" id="lapTrx">-</div></div>
+              <div><div class="text-muted">Estimasi Pendapatan</div><div class="fw-bold" style="font-size:20px" id="lapPendapatan">-</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PENGATURAN PAGE ===== -->
+      <div class="page" id="page-pengaturan">
+        <div class="page-header">
+          <h2>Pengaturan</h2>
+          <p>Kelola informasi akun dan sistem</p>
+        </div>
+        <div class="section-card">
+          <div class="section-header"><span class="section-title">👤 Profil Admin</span></div>
+          <div class="section-body">
+            <div class="form-grid">
+              <div class="field"><label>Nama Admin</label><input type="text" id="setNama" value="Administrator" /></div>
+              <div class="field"><label>Email</label><input type="email" id="setEmail" value="admin@gilangtrans.com" /></div>
+              <div class="field"><label>Password Baru</label><input type="password" id="setPass" placeholder="Kosongkan jika tidak diubah" /></div>
+              <div class="field"><label>Konfirmasi Password</label><input type="password" id="setPassConf" placeholder="Ulangi password baru" /></div>
+            </div>
+            <div style="margin-top:16px">
+              <button class="btn btn-primary" onclick="saveSettings()">Simpan Perubahan</button>
+            </div>
+          </div>
+        </div>
+        <div class="section-card" style="margin-top:16px">
+          <div class="section-header"><span class="section-title">🌐 Info Website</span></div>
+          <div class="section-body">
+            <div class="form-grid">
+              <div class="field"><label>Nama Perusahaan</label><input type="text" value="Gilang Trans" /></div>
+              <div class="field"><label>Nomor WhatsApp</label><input type="text" value="6285724615368" /></div>
+              <div class="field form-full"><label>Alamat</label><input type="text" value="Cianjur, Jawa Barat" /></div>
+            </div>
+            <div style="margin-top:16px">
+              <button class="btn btn-primary" onclick="showToast('Info website disimpan!','success')">Simpan</button>
+            </div>
+          </div>
+        </div>
+        <div class="section-card" style="margin-top:16px">
+          <div class="section-header"><span class="section-title">🗑️ Data</span></div>
+          <div class="section-body">
+            <p class="text-muted" style="margin-bottom:12px">Reset semua data transaksi (rute tidak akan dihapus)</p>
+            <button class="btn btn-danger" onclick="confirmResetTrx()">Reset Transaksi</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end page-content -->
+  </div><!-- end main-content -->
+</div><!-- end adminApp -->
+
+<!-- ===== MODAL RUTE ===== -->
+<div class="modal-overlay hidden" id="modalRute">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modalRuteTitle">Tambah Rute</h3>
+      <button class="modal-close" onclick="closeModal('modalRute')">×</button>
+    </div>
+    <div class="modal-body-pad">
+      <input type="hidden" id="editRuteId" />
+      <div class="form-grid">
+        <div class="field">
+          <label>Nama Rute *</label>
+          <input type="text" id="rNama" placeholder="Contoh: Travel Cianjur Jakarta" />
+        </div>
+        <div class="field">
+          <label>Icon (Emoji)</label>
+          <input type="text" id="rIcon" placeholder="🏙️" maxlength="8" />
+        </div>
+        <div class="field">
+          <label>Kategori *</label>
+          <select id="rKategori">
+            <option value="jakarta">Jakarta & Jabodetabek</option>
+            <option value="bandung">Bandung</option>
+            <option value="semarang">Semarang & Jateng</option>
+            <option value="yogyakarta">Yogyakarta & Solo</option>
+            <option value="lain">Lainnya</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Harga (Rp) *</label>
+          <input type="number" id="rHarga" placeholder="150000" />
+        </div>
+        <div class="field">
+          <label>Durasi (Hari)</label>
+          <select id="rDurasi">
+            <option value="1">1 Hari</option>
+            <option value="2">2 Hari</option>
+            <option value="3">3 Hari</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Featured</label>
+          <select id="rFeatured">
+            <option value="false">Tidak</option>
+            <option value="true">Ya (⭐ Featured)</option>
+          </select>
+        </div>
+        <div class="field form-full">
+          <label>Jadwal Keberangkatan</label>
+          <div class="chips-wrap" id="jadwalChips">
+            <input class="chips-input" id="jadwalInput" placeholder="Ketik jam, tekan Enter (contoh: 06:00)" onkeydown="addJadwalChip(event)" />
+          </div>
+          <div class="hint">Tekan Enter untuk menambah jadwal</div>
+        </div>
+        <div class="field form-full">
+          <label>Rute / Pemberhentian</label>
+          <div class="chips-wrap" id="ruteChips">
+            <input class="chips-input" id="ruteInput" placeholder="Ketik kota, tekan Enter (contoh: Cianjur)" onkeydown="addRuteChip(event)" />
+          </div>
+          <div class="hint">Tekan Enter untuk menambah pemberhentian</div>
+        </div>
+        <div class="field form-full">
+          <label>Fasilitas</label>
+          <div class="chips-wrap" id="fasChips">
+            <input class="chips-input" id="fasInput" placeholder="Ketik fasilitas, tekan Enter (contoh: AC Dingin)" onkeydown="addFasChip(event)" />
+          </div>
+          <div class="hint">Tekan Enter untuk menambah fasilitas</div>
+        </div>
+        <div class="field form-full">
+          <label>Gambar Rute</label>
+          <div class="img-preview-wrap" onclick="document.getElementById('imgFileInput').click()">
+            <img id="imgPreview" style="display:none" />
+            <div class="img-overlay">📷 Ganti Gambar</div>
+            <div class="img-placeholder" id="imgPlaceholder">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <div>Klik untuk upload gambar</div>
+              <div style="font-size:11px;margin-top:2px">atau masukkan URL di bawah</div>
+            </div>
+          </div>
+          <input type="file" id="imgFileInput" accept="image/*" onchange="previewImage(this)" />
+          <input type="text" id="rImage" placeholder="URL gambar (opsional)" style="margin-top:8px;width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;outline:none" oninput="previewImageUrl(this.value)" />
+        </div>
+        <div class="field form-full">
+          <label>Keterangan / Deskripsi</label>
+          <textarea id="rKeterangan" placeholder="Informasi tambahan tentang rute ini..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalRute')">Batal</button>
+      <button class="btn btn-primary" onclick="saveRute()">Simpan Rute</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL TRANSAKSI ===== -->
+<div class="modal-overlay hidden" id="modalTrx">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modalTrxTitle">Tambah Transaksi</h3>
+      <button class="modal-close" onclick="closeModal('modalTrx')">×</button>
+    </div>
+    <div class="modal-body-pad">
+      <input type="hidden" id="editTrxId" />
+      <div class="form-grid">
+        <div class="field">
+          <label>Nama Penumpang *</label>
+          <input type="text" id="tNama" placeholder="Nama lengkap" />
+        </div>
+        <div class="field">
+          <label>Nomor HP</label>
+          <input type="text" id="tHp" placeholder="08xx-xxxx-xxxx" />
+        </div>
+        <div class="field">
+          <label>Rute *</label>
+          <select id="tRute"></select>
+        </div>
+        <div class="field">
+          <label>Jadwal</label>
+          <select id="tJadwal"><option value="">Pilih jadwal</option></select>
+        </div>
+        <div class="field">
+          <label>Harga</label>
+          <input type="number" id="tHarga" placeholder="Otomatis dari rute" />
+        </div>
+        <div class="field">
+          <label>Jumlah Penumpang</label>
+          <input type="number" id="tJumlah" value="1" min="1" />
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="tStatus">
+            <option value="Pending">Pending</option>
+            <option value="Selesai">Selesai</option>
+            <option value="Batal">Batal</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tanggal</label>
+          <input type="date" id="tTanggal" />
+        </div>
+        <div class="field form-full">
+          <label>Catatan</label>
+          <textarea id="tCatatan" placeholder="Catatan tambahan..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalTrx')">Batal</button>
+      <button class="btn btn-primary" onclick="saveTrx()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONFIRM DIALOG ===== -->
+<div class="confirm-overlay hidden" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+    <div class="confirm-title" id="confirmTitle">Yakin?</div>
+    <div class="confirm-msg" id="confirmMsg">Tindakan ini tidak bisa dibatalkan</div>
+    <div class="confirm-btns">
+      <button class="btn btn-outline" onclick="closeConfirm()">Batal</button>
+      <button class="btn btn-danger" id="confirmOkBtn" onclick="doConfirm()">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================================
+   ADMIN CREDENTIALS
+============================================================ */
+const ADMIN_CREDS = [
+  { email: 'admin@gilangtrans.com', pass: 'admin123' },
+  { email: 'gilang@gilangtrans.com', pass: 'gilang2024' }
+];
+
+/* ============================================================
+   TRIPS DATA (shared with main site)
+============================================================ */
+let trips = JSON.parse(localStorage.getItem('gt_trips')) || [
+  { id:1, nama:"Travel Cianjur Jakarta", icon:"🏙️", harga:150000, kategori:"jakarta", durasi:1, featured:true, image:"img/travel/travel1.svg", jadwal:["04:00","06:00","08:00","10:00","13:00","16:00","19:00"], fasilitas:["AC Dingin","Musik","Door to Door","Bagasi Gratis","Sopir Berpengalaman"], rute:["Cianjur","Cipanas","Puncak","Ciawi","Cibubur","Jakarta"], keterangan:"" },
+  { id:2, nama:"Travel Cianjur Bandung", icon:"🌆", harga:90000, kategori:"bandung", durasi:1, featured:true, image:"img/travel/travel2.svg", jadwal:["05:00","07:00","09:00","11:00","14:00","17:00","20:00"], fasilitas:["AC Dingin","Musik","Door to Door","Bagasi Gratis"], rute:["Cianjur","Ciranjang","Padalarang","Bandung"], keterangan:"" },
+  { id:3, nama:"Travel Cianjur Bekasi", icon:"🏢", harga:160000, kategori:"jakarta", durasi:1, featured:false, image:"img/travel/travel3.svg", jadwal:["05:30","07:30","10:00","14:00","18:00"], fasilitas:["AC Dingin","Musik","Door to Door","Charger USB","Bagasi Gratis"], rute:["Cianjur","Cipanas","Tol Jagorawi","Bekasi"], keterangan:"" },
+  { id:4, nama:"Travel Cianjur Depok", icon:"🌃", harga:145000, kategori:"jakarta", durasi:1, featured:false, image:"img/travel/travel4.svg", jadwal:["06:00","09:00","13:00","17:00","20:00"], fasilitas:["AC Dingin","Musik","Door to Door","Bagasi Gratis"], rute:["Cianjur","Cipanas","Bogor","Citayam","Depok"], keterangan:"" },
+  { id:5, nama:"Travel Cianjur Bogor", icon:"🌿", harga:75000, kategori:"lain", durasi:1, featured:false, image:"img/travel/travel5.svg", jadwal:["05:00","07:00","09:00","12:00","15:00","18:00","21:00"], fasilitas:["AC Dingin","Musik","Door to Door","Bagasi Gratis"], rute:["Cianjur","Cipanas","Puncak","Cisarua","Bogor"], keterangan:"" },
+  { id:6, nama:"Travel Cianjur Tangerang", icon:"🏬", harga:170000, kategori:"jakarta", durasi:1, featured:true, image:"img/travel/travel6.svg", jadwal:["05:00","08:00","12:00","16:00","19:00"], fasilitas:["AC Dingin","Musik","Door to Door","Charger USB","Bagasi Gratis"], rute:["Cianjur","Cipanas","Tol JORR","Tangerang"], keterangan:"" },
+  { id:7, nama:"Travel Cianjur Sukabumi", icon:"🏔️", harga:65000, kategori:"lain", durasi:1, featured:false, image:"img/travel/travel7.svg", jadwal:["06:00","09:00","12:00","15:00","18:00"], fasilitas:["AC Dingin","Musik","Door to Door","Bagasi Gratis"], rute:["Cianjur","Cibeber","Sukabumi"], keterangan:"" },
+  { id:8, nama:"Travel Cianjur Semarang", icon:"🌊", harga:350000, kategori:"semarang", durasi:2, featured:true, image:"img/travel/travel8.svg", jadwal:["07:00","20:00"], fasilitas:["AC Dingin","Musik","Door to Door","Charger USB","WiFi","Bagasi Gratis"], rute:["Cianjur","Cipanas","Cikampek","Semarang"], keterangan:"" },
+  { id:9, nama:"Travel Cianjur Yogyakarta", icon:"🏯", harga:280000, kategori:"yogyakarta", durasi:2, featured:true, image:"img/travel/travel9.svg", jadwal:["06:00","18:00"], fasilitas:["AC Dingin","Musik","Door to Door","Charger USB","WiFi","Bagasi Gratis"], rute:["Cianjur","Cipanas","Cikampek","Purwokerto","Yogyakarta"], keterangan:"" },
+  { id:10, nama:"Travel Cianjur Surabaya", icon:"⚓", harga:420000, kategori:"semarang", durasi:2, featured:false, image:"img/travel/travel10.svg", jadwal:["06:00","16:00"], fasilitas:["AC Dingin","Musik","Door to Door","Charger USB","WiFi","Bagasi Gratis"], rute:["Cianjur","Cipanas","Semarang","Solo","Surabaya"], keterangan:"" },
+  { id:11, nama:"Travel Cianjur Solo", icon:"🎭", harga:250000, kategori:"yogyakarta", durasi:2, featured:false, image:"img/travel/travel11.svg", jadwal:["07:00","18:00"], fasilitas:["AC Dingin","Musik","Door to Door","Charger USB","Bagasi Gratis"], rute:["Cianjur","Cipanas","Semarang","Solo"], keterangan:"" },
+  { id:12, nama:"Travel Bandara Cianjur (CGK)", icon:"✈️", harga:200000, kategori:"jakarta", durasi:1, featured:true, image:"img/travel/travel12.svg", jadwal:["02:00","04:00","06:00","08:00","10:00","14:00","16:00","18:00","20:00"], fasilitas:["AC Dingin","Door to Door","Charger USB","Antar Ke Terminal","Tepat Waktu","Bagasi Gratis"], rute:["Cianjur","Cipanas","Cikampek","Soeta Airport"], keterangan:"" }
+];
+
+let transactions = JSON.parse(localStorage.getItem('gt_transactions')) || generateSampleTrx();
+let nextTrxId = transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1;
+let nextTripId = trips.length ? Math.max(...trips.map(t => t.id)) + 1 : 13;
+
+let jadwalChips = [], ruteChips = [], fasChips = [];
+let confirmCallback = null;
+let editingRuteId = null;
+let editingTrxId = null;
+
+/* ============================================================
+   SAMPLE TRANSACTIONS
+============================================================ */
+function generateSampleTrx() {
+  const names = ['Budi Santoso','Siti Rahayu','Ahmad Fauzi','Dewi Anggraini','Rian Pratama','Nisa Nurhayati','Deni Kurniawan','Lina Wati'];
+  const statuses = ['Selesai','Selesai','Selesai','Pending','Batal'];
+  const result = [];
+  const tripSample = [
+    {id:1,nama:"Travel Cianjur Jakarta",harga:150000,jadwal:["06:00","08:00"]},
+    {id:2,nama:"Travel Cianjur Bandung",harga:90000,jadwal:["07:00","09:00"]},
+    {id:8,nama:"Travel Cianjur Semarang",harga:350000,jadwal:["07:00"]},
+    {id:9,nama:"Travel Cianjur Yogyakarta",harga:280000,jadwal:["06:00"]}
+  ];
+  for (let i = 0; i < 18; i++) {
+    const d = new Date(2026, Math.floor(i/3), (i%10)+1);
+    const t = tripSample[i % tripSample.length];
+    result.push({
+      id: i+1,
+      nama: names[i % names.length],
+      hp: '0812' + String(Math.floor(Math.random()*90000000+10000000)),
+      ruteId: t.id, ruteName: t.nama, harga: t.harga,
+      jumlah: Math.floor(Math.random()*3)+1,
+      jadwal: t.jadwal[0],
+      status: statuses[i % statuses.length],
+      tanggal: d.toISOString().split('T')[0],
+      catatan: ''
+    });
+  }
+  return result;
+}
+
+/* ============================================================
+   AUTH
+============================================================ */
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const ok = ADMIN_CREDS.some(c => c.email === email && c.pass === pass);
+  if (ok) {
+    localStorage.setItem('gt_admin_logged', '1');
+    localStorage.setItem('gt_admin_email', email);
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('adminApp').classList.add('show');
+    initAdmin();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('gt_admin_logged');
+  document.getElementById('adminApp').classList.remove('show');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Theme
+  const t = localStorage.getItem('rt_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+
+  // Auto login
+  if (localStorage.getItem('gt_admin_logged') === '1') {
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('adminApp').classList.add('show');
+    initAdmin();
+  }
+});
+
+function initAdmin() {
+  saveTrips();
+  updateDashboard();
+  renderRuteTable();
+  renderHargaTable();
+  renderTrxTable();
+  buildChart();
+  updateLaporan();
+}
+
+/* ============================================================
+   THEME
+============================================================ */
+function toggleTheme() {
+  const curr = document.documentElement.getAttribute('data-theme');
+  const next = curr === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('rt_theme', next);
+}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+/* ============================================================
+   PAGE NAVIGATION
+============================================================ */
+const pageTitles = {
+  dashboard: 'Dashboard', transaksi: 'Histori Transaksi',
+  rute: 'Kelola Rute', harga: 'Kelola Harga',
+  laporan: 'Laporan & Ekspor', pengaturan: 'Pengaturan'
+};
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('pageTitle').textContent = pageTitles[name] || name;
+  closeSidebar();
+  if (name === 'laporan') updateLaporan();
+}
+
+/* ============================================================
+   DASHBOARD
+============================================================ */
+function updateDashboard() {
+  document.getElementById('statRute').textContent = trips.length;
+  document.getElementById('statTrx').textContent = transactions.length;
+  document.getElementById('statFeatured').textContent = trips.filter(t => t.featured).length;
+  const est = transactions.filter(t=>t.status==='Selesai').reduce((s,t) => s + t.harga * t.jumlah, 0);
+  document.getElementById('statPendapatan').textContent = 'Rp ' + est.toLocaleString('id');
+
+  // Recent trx
+  const body = document.getElementById('recentTrxBody');
+  const recent = [...transactions].sort((a,b)=>b.id-a.id).slice(0,5);
+  body.innerHTML = recent.map(t => `
+    <tr>
+      <td>#${t.id}</td>
+      <td>${t.nama}</td>
+      <td style="font-size:12px">${t.ruteName}</td>
+      <td>Rp ${(t.harga*t.jumlah).toLocaleString('id')}</td>
+      <td><span class="badge ${statusBadge(t.status)}">${t.status}</span></td>
+      <td style="font-size:12px">${t.tanggal}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="6" class="empty-state">Belum ada transaksi</td></tr>';
+}
+
+function buildChart() {
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const counts = Array(12).fill(0);
+  transactions.forEach(t => {
+    const m = new Date(t.tanggal).getMonth();
+    if (!isNaN(m)) counts[m]++;
+  });
+  const max = Math.max(...counts, 1);
+  const bars = document.getElementById('chartBars');
+  bars.innerHTML = months.map((m, i) => `
+    <div class="chart-bar" style="height:${(counts[i]/max)*100}%" title="${m}: ${counts[i]} transaksi">
+      <div class="chart-bar-label">${m}</div>
+    </div>
+  `).join('');
+}
+
+function updateLaporan() {
+  document.getElementById('lapRute').textContent = trips.length;
+  document.getElementById('lapFeatured').textContent = trips.filter(t=>t.featured).length;
+  document.getElementById('lapTrx').textContent = transactions.length;
+  const est = transactions.filter(t=>t.status==='Selesai').reduce((s,t)=>s+t.harga*t.jumlah,0);
+  document.getElementById('lapPendapatan').textContent = 'Rp ' + est.toLocaleString('id');
+}
+
+/* ============================================================
+   RUTE TABLE
+============================================================ */
+function renderRuteTable() {
+  const q = (document.getElementById('ruteSearch')?.value || '').toLowerCase();
+  const body = document.getElementById('ruteBody');
+  const filtered = trips.filter(t => !q || t.nama.toLowerCase().includes(q));
+  body.innerHTML = filtered.map(t => `
+    <tr>
+      <td class="trip-icon-cell">${t.icon}</td>
+      <td>
+        <div style="font-weight:600;font-size:14px">${t.nama}</div>
+        <div class="rute-text">${t.keterangan || ''}</div>
+      </td>
+      <td style="font-weight:700;color:var(--primary)">Rp ${t.harga.toLocaleString('id')}</td>
+      <td><span class="badge badge-info">${categoryLabel(t.kategori)}</span></td>
+      <td>${t.durasi} Hari</td>
+      <td style="font-size:12px">${t.jadwal.slice(0,3).join(', ')}${t.jadwal.length>3?'…':''}</td>
+      <td>${t.featured ? '<span class="badge badge-warning">⭐ Ya</span>' : '<span class="badge" style="background:var(--bg);color:var(--text-muted)">Tidak</span>'}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-sm edit" onclick="openEditRute(${t.id})">✏️ Edit</button>
+          <button class="btn-sm del" onclick="confirmDeleteRute(${t.id})">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="8"><div class="empty-state"><p>Tidak ada rute</p></div></td></tr>';
+}
+
+function categoryLabel(kat) {
+  const map = { jakarta:'Jabodetabek', bandung:'Bandung', semarang:'Jateng', yogyakarta:'Jogja/Solo', lain:'Lainnya' };
+  return map[kat] || kat;
+}
+
+/* ============================================================
+   RUTE CRUD
+============================================================ */
+function openAddRute() {
+  document.getElementById('editRuteId').value = '';
+  document.getElementById('modalRuteTitle').textContent = 'Tambah Rute';
+  document.getElementById('rNama').value = '';
+  document.getElementById('rIcon').value = '';
+  document.getElementById('rHarga').value = '';
+  document.getElementById('rKategori').value = 'jakarta';
+  document.getElementById('rDurasi').value = '1';
+  document.getElementById('rFeatured').value = 'false';
+  document.getElementById('rImage').value = '';
+  document.getElementById('rKeterangan').value = '';
+  jadwalChips = []; ruteChips = []; fasChips = [];
+  renderChips();
+  clearImgPreview();
+  document.getElementById('modalRute').classList.remove('hidden');
+}
+
+function openEditRute(id) {
+  const t = trips.find(r => r.id === id);
+  if (!t) return;
+  document.getElementById('editRuteId').value = id;
+  document.getElementById('modalRuteTitle').textContent = 'Edit Rute';
+  document.getElementById('rNama').value = t.nama;
+  document.getElementById('rIcon').value = t.icon;
+  document.getElementById('rHarga').value = t.harga;
+  document.getElementById('rKategori').value = t.kategori;
+  document.getElementById('rDurasi').value = t.durasi;
+  document.getElementById('rFeatured').value = String(t.featured);
+  document.getElementById('rImage').value = t.image || '';
+  document.getElementById('rKeterangan').value = t.keterangan || '';
+  jadwalChips = [...t.jadwal];
+  ruteChips = [...t.rute];
+  fasChips = [...t.fasilitas];
+  renderChips();
+  previewImageUrl(t.image || '');
+  document.getElementById('modalRute').classList.remove('hidden');
+}
+
+function saveRute() {
+  const nama = document.getElementById('rNama').value.trim();
+  const harga = parseInt(document.getElementById('rHarga').value);
+  if (!nama) { showToast('Nama rute wajib diisi!', 'error'); return; }
+  if (!harga || isNaN(harga)) { showToast('Harga wajib diisi!', 'error'); return; }
+
+  const id = parseInt(document.getElementById('editRuteId').value);
+  const data = {
+    nama, icon: document.getElementById('rIcon').value || '🚗',
+    harga, hargaText: 'Rp ' + harga.toLocaleString('id'),
+    kategori: document.getElementById('rKategori').value,
+    durasi: parseInt(document.getElementById('rDurasi').value),
+    featured: document.getElementById('rFeatured').value === 'true',
+    image: document.getElementById('rImage').value || '',
+    keterangan: document.getElementById('rKeterangan').value,
+    jadwal: [...jadwalChips], rute: [...ruteChips], fasilitas: [...fasChips]
+  };
+
+  if (id) {
+    const idx = trips.findIndex(t => t.id === id);
+    trips[idx] = { ...trips[idx], ...data };
+    showToast('Rute berhasil diperbarui!', 'success');
+  } else {
+    data.id = nextTripId++;
+    trips.push(data);
+    showToast('Rute baru berhasil ditambahkan!', 'success');
+  }
+
+  saveTrips();
+  closeModal('modalRute');
+  renderRuteTable();
+  renderHargaTable();
+  updateDashboard();
+}
+
+function confirmDeleteRute(id) {
+  const t = trips.find(r => r.id === id);
+  showConfirm('Hapus Rute?', `Yakin hapus rute "${t?.nama}"? Tindakan ini tidak bisa dibatalkan.`, '🗑️', () => {
+    trips = trips.filter(r => r.id !== id);
+    saveTrips();
+    renderRuteTable();
+    renderHargaTable();
+    updateDashboard();
+    showToast('Rute berhasil dihapus', 'success');
+  });
+}
+
+function saveTrips() {
+  localStorage.setItem('gt_trips', JSON.stringify(trips));
+}
+
+/* ============================================================
+   CHIPS
+============================================================ */
+function addJadwalChip(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const val = document.getElementById('jadwalInput').value.trim();
+  if (val && !jadwalChips.includes(val)) {
+    jadwalChips.push(val);
+    renderChips();
+  }
+  document.getElementById('jadwalInput').value = '';
+}
+function addRuteChip(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const val = document.getElementById('ruteInput').value.trim();
+  if (val && !ruteChips.includes(val)) {
+    ruteChips.push(val);
+    renderChips();
+  }
+  document.getElementById('ruteInput').value = '';
+}
+function addFasChip(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const val = document.getElementById('fasInput').value.trim();
+  if (val && !fasChips.includes(val)) {
+    fasChips.push(val);
+    renderChips();
+  }
+  document.getElementById('fasInput').value = '';
+}
+
+function removeChip(arr, val) {
+  if (arr === 'jadwal') jadwalChips = jadwalChips.filter(c => c !== val);
+  if (arr === 'rute') ruteChips = ruteChips.filter(c => c !== val);
+  if (arr === 'fas') fasChips = fasChips.filter(c => c !== val);
+  renderChips();
+}
+
+function renderChips() {
+  renderChipList('jadwalChips', jadwalChips, 'jadwal', 'jadwalInput');
+  renderChipList('ruteChips', ruteChips, 'rute', 'ruteInput');
+  renderChipList('fasChips', fasChips, 'fas', 'fasInput');
+}
+
+function renderChipList(wrapperId, arr, arrName, inputId) {
+  const wrap = document.getElementById(wrapperId);
+  const input = document.getElementById(inputId);
+  const chips = arr.map(v => `
+    <span class="chip">${v}<button onclick="removeChip('${arrName}','${v}')">×</button></span>
+  `).join('');
+  wrap.innerHTML = chips;
+  wrap.appendChild(input);
+}
+
+/* ============================================================
+   IMAGE PREVIEW
+============================================================ */
+function previewImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('imgPreview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('imgPlaceholder').style.display = 'none';
+    document.getElementById('rImage').value = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function previewImageUrl(url) {
+  if (!url) { clearImgPreview(); return; }
+  const img = document.getElementById('imgPreview');
+  img.src = url;
+  img.style.display = 'block';
+  document.getElementById('imgPlaceholder').style.display = 'none';
+}
+function clearImgPreview() {
+  const img = document.getElementById('imgPreview');
+  img.src = ''; img.style.display = 'none';
+  document.getElementById('imgPlaceholder').style.display = 'block';
+}
+
+/* ============================================================
+   HARGA TABLE
+============================================================ */
+function renderHargaTable() {
+  const body = document.getElementById('hargaBody');
+  const prices = trips.map(t => t.harga);
+  const min = Math.min(...prices), max = Math.max(...prices);
+  document.getElementById('hargaMin').textContent = 'Rp ' + min.toLocaleString('id');
+  document.getElementById('hargaMax').textContent = 'Rp ' + max.toLocaleString('id');
+  document.getElementById('hargaAvg').textContent = 'Rp ' + Math.round(prices.reduce((a,b)=>a+b,0)/prices.length).toLocaleString('id');
+
+  body.innerHTML = trips.map(t => `
+    <tr>
+      <td class="trip-icon-cell">${t.icon}</td>
+      <td style="font-weight:600">${t.nama}</td>
+      <td style="font-weight:700;color:var(--primary)">Rp ${t.harga.toLocaleString('id')}</td>
+      <td><input type="number" id="harga-input-${t.id}" value="${t.harga}" style="width:130px;padding:7px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;outline:none" /></td>
+      <td>
+        <button class="btn-sm edit" onclick="updateHarga(${t.id})">💾 Update</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function updateHarga(id) {
+  const val = parseInt(document.getElementById('harga-input-' + id).value);
+  if (isNaN(val) || val < 0) { showToast('Harga tidak valid!','error'); return; }
+  const idx = trips.findIndex(t => t.id === id);
+  trips[idx].harga = val;
+  trips[idx].hargaText = 'Rp ' + val.toLocaleString('id');
+  saveTrips();
+  renderHargaTable();
+  showToast('Harga berhasil diperbarui!','success');
+}
+
+/* ============================================================
+   TRANSAKSI
+============================================================ */
+function renderTrxTable() {
+  const q = (document.getElementById('trxSearch')?.value||'').toLowerCase();
+  const statusF = document.getElementById('trxStatusFilter')?.value||'';
+  let filtered = transactions.filter(t => {
+    if (q && !t.nama.toLowerCase().includes(q) && !t.ruteName.toLowerCase().includes(q)) return false;
+    if (statusF && t.status !== statusF) return false;
+    return true;
+  }).sort((a,b)=>b.id-a.id);
+
+  const body = document.getElementById('trxBody');
+  const empty = document.getElementById('trxEmpty');
+  if (filtered.length === 0) {
+    body.innerHTML = ''; empty.style.display = 'block'; return;
+  }
+  empty.style.display = 'none';
+  body.innerHTML = filtered.map(t => `
+    <tr>
+      <td style="color:var(--text-muted);font-size:12px">#${t.id}</td>
+      <td>
+        <div style="font-weight:600">${t.nama}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${t.hp||''}</div>
+      </td>
+      <td style="font-size:13px">${t.ruteName}</td>
+      <td style="font-weight:700;color:var(--primary)">Rp ${(t.harga*t.jumlah).toLocaleString('id')}<br><span style="font-size:11px;font-weight:400;color:var(--text-muted)">${t.jumlah} org × Rp ${t.harga.toLocaleString('id')}</span></td>
+      <td style="font-size:13px">${t.jadwal||'-'}</td>
+      <td><span class="badge ${statusBadge(t.status)}">${t.status}</span></td>
+      <td style="font-size:12px;color:var(--text-muted)">${t.tanggal}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-sm edit" onclick="openEditTrx(${t.id})">✏️</button>
+          <button class="btn-sm del" onclick="confirmDeleteTrx(${t.id})">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function statusBadge(s) {
+  if (s==='Selesai') return 'badge-success';
+  if (s==='Pending') return 'badge-warning';
+  if (s==='Batal') return 'badge-danger';
+  return 'badge-info';
+}
+
+function openAddTrx() {
+  document.getElementById('editTrxId').value = '';
+  document.getElementById('modalTrxTitle').textContent = 'Tambah Transaksi';
+  document.getElementById('tNama').value = '';
+  document.getElementById('tHp').value = '';
+  document.getElementById('tHarga').value = '';
+  document.getElementById('tJumlah').value = 1;
+  document.getElementById('tStatus').value = 'Pending';
+  document.getElementById('tTanggal').value = new Date().toISOString().split('T')[0];
+  document.getElementById('tCatatan').value = '';
+  fillTRuteSelect();
+  document.getElementById('modalTrx').classList.remove('hidden');
+}
+
+function openEditTrx(id) {
+  const t = transactions.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('editTrxId').value = id;
+  document.getElementById('modalTrxTitle').textContent = 'Edit Transaksi';
+  document.getElementById('tNama').value = t.nama;
+  document.getElementById('tHp').value = t.hp||'';
+  document.getElementById('tHarga').value = t.harga;
+  document.getElementById('tJumlah').value = t.jumlah;
+  document.getElementById('tStatus').value = t.status;
+  document.getElementById('tTanggal').value = t.tanggal;
+  document.getElementById('tCatatan').value = t.catatan||'';
+  fillTRuteSelect(t.ruteId, t.jadwal);
+  document.getElementById('modalTrx').classList.remove('hidden');
+}
+
+function fillTRuteSelect(selRuteId, selJadwal) {
+  const sel = document.getElementById('tRute');
+  sel.innerHTML = trips.map(t => `<option value="${t.id}" ${t.id==selRuteId?'selected':''}>${t.nama}</option>`).join('');
+  fillJadwalSelect(selJadwal);
+  sel.onchange = () => fillJadwalSelect();
+
+  if (selRuteId) {
+    const t = trips.find(x => x.id == selRuteId);
+    if (t) document.getElementById('tHarga').value = t.harga;
+  }
+}
+
+function fillJadwalSelect(selJadwal) {
+  const ruteId = parseInt(document.getElementById('tRute').value);
+  const trip = trips.find(t => t.id === ruteId);
+  const sel = document.getElementById('tJadwal');
+  if (trip) {
+    sel.innerHTML = trip.jadwal.map(j => `<option value="${j}" ${j===selJadwal?'selected':''}>${j}</option>`).join('');
+    document.getElementById('tHarga').value = trip.harga;
+  }
+}
+
+function saveTrx() {
+  const nama = document.getElementById('tNama').value.trim();
+  if (!nama) { showToast('Nama penumpang wajib diisi!','error'); return; }
+  const ruteId = parseInt(document.getElementById('tRute').value);
+  const trip = trips.find(t => t.id === ruteId);
+  const id = parseInt(document.getElementById('editTrxId').value);
+
+  const data = {
+    nama, hp: document.getElementById('tHp').value,
+    ruteId, ruteName: trip?.nama||'',
+    harga: parseInt(document.getElementById('tHarga').value)||trip?.harga||0,
+    jumlah: parseInt(document.getElementById('tJumlah').value)||1,
+    jadwal: document.getElementById('tJadwal').value,
+    status: document.getElementById('tStatus').value,
+    tanggal: document.getElementById('tTanggal').value,
+    catatan: document.getElementById('tCatatan').value
+  };
+
+  if (id) {
+    const idx = transactions.findIndex(t => t.id === id);
+    transactions[idx] = { ...transactions[idx], ...data };
+    showToast('Transaksi diperbarui!','success');
+  } else {
+    data.id = nextTrxId++;
+    transactions.push(data);
+    showToast('Transaksi ditambahkan!','success');
+  }
+
+  localStorage.setItem('gt_transactions', JSON.stringify(transactions));
+  closeModal('modalTrx');
+  renderTrxTable();
+  updateDashboard();
+  buildChart();
+}
+
+function confirmDeleteTrx(id) {
+  showConfirm('Hapus Transaksi?', 'Yakin hapus data transaksi ini?', '🗑️', () => {
+    transactions = transactions.filter(t => t.id !== id);
+    localStorage.setItem('gt_transactions', JSON.stringify(transactions));
+    renderTrxTable();
+    updateDashboard();
+    buildChart();
+    showToast('Transaksi dihapus','success');
+  });
+}
+
+function confirmResetTrx() {
+  showConfirm('Reset Semua Transaksi?', 'Semua data transaksi akan dihapus permanen!', '⚠️', () => {
+    transactions = [];
+    localStorage.setItem('gt_transactions', JSON.stringify(transactions));
+    renderTrxTable(); updateDashboard(); buildChart();
+    showToast('Data transaksi direset','success');
+  });
+}
+
+/* ============================================================
+   EXCEL EXPORT
+============================================================ */
+function exportTrxExcel() {
+  const data = transactions.map(t => ({
+    'ID': t.id,
+    'Nama Penumpang': t.nama,
+    'No HP': t.hp||'-',
+    'Nama Rute': t.ruteName,
+    'Harga/Orang': t.harga,
+    'Jumlah Penumpang': t.jumlah,
+    'Total Harga': t.harga * t.jumlah,
+    'Jadwal': t.jadwal||'-',
+    'Status': t.status,
+    'Tanggal': t.tanggal,
+    'Catatan': t.catatan||''
+  }));
+  downloadExcel([{ name: 'Transaksi', data }], 'Laporan_Transaksi_GilangTrans.xlsx');
+  showToast('File Excel transaksi berhasil diunduh!','success');
+}
+
+function exportRuteExcel() {
+  const data = trips.map(t => ({
+    'ID': t.id,
+    'Nama Rute': t.nama,
+    'Icon': t.icon,
+    'Harga': t.harga,
+    'Kategori': categoryLabel(t.kategori),
+    'Durasi (Hari)': t.durasi,
+    'Featured': t.featured ? 'Ya' : 'Tidak',
+    'Jadwal': t.jadwal.join(', '),
+    'Rute Pemberhentian': t.rute.join(' → '),
+    'Fasilitas': t.fasilitas.join(', '),
+    'Keterangan': t.keterangan||''
+  }));
+  downloadExcel([{ name: 'Rute', data }], 'Laporan_Rute_GilangTrans.xlsx');
+  showToast('File Excel rute berhasil diunduh!','success');
+}
+
+function exportHargaExcel() {
+  const data = trips.map(t => ({
+    'ID': t.id,
+    'Nama Rute': t.nama,
+    'Harga (Rp)': t.harga,
+    'Kategori': categoryLabel(t.kategori)
+  }));
+  downloadExcel([{ name: 'Harga', data }], 'Laporan_Harga_GilangTrans.xlsx');
+  showToast('File Excel harga berhasil diunduh!','success');
+}
+
+function exportAllExcel() {
+  const trxData = transactions.map(t => ({
+    'ID': t.id, 'Nama': t.nama, 'Rute': t.ruteName,
+    'Total': t.harga * t.jumlah, 'Status': t.status, 'Tanggal': t.tanggal
+  }));
+  const ruteData = trips.map(t => ({
+    'ID': t.id, 'Nama': t.nama, 'Harga': t.harga, 'Kategori': categoryLabel(t.kategori)
+  }));
+  downloadExcel([
+    { name: 'Transaksi', data: trxData },
+    { name: 'Rute', data: ruteData }
+  ], 'Laporan_Lengkap_GilangTrans.xlsx');
+  showToast('Laporan lengkap berhasil diunduh!','success');
+}
+
+function downloadExcel(sheets, filename) {
+  const wb = XLSX.utils.book_new();
+  sheets.forEach(s => {
+    const ws = XLSX.utils.json_to_sheet(s.data);
+    // Style header
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (ws[addr]) {
+        ws[addr].s = { font: { bold: true }, fill: { fgColor: { rgb: '1A56DB' } }, fontColor: { rgb: 'FFFFFF' } };
+      }
+    }
+    XLSX.utils.book_append_sheet(wb, ws, s.name);
+  });
+  XLSX.writeFile(wb, filename);
+}
+
+/* ============================================================
+   MODAL
+============================================================ */
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+/* ============================================================
+   CONFIRM DIALOG
+============================================================ */
+function showConfirm(title, msg, icon, callback) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmIcon').textContent = icon;
+  confirmCallback = callback;
+  document.getElementById('confirmOverlay').classList.remove('hidden');
+}
+function doConfirm() {
+  if (confirmCallback) confirmCallback();
+  closeConfirm();
+}
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.add('hidden');
+  confirmCallback = null;
+}
+
+/* ============================================================
+   TOAST
+============================================================ */
+function showToast(msg, type='') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = (type==='success'?'✅ ':type==='error'?'❌ ':'ℹ️ ') + msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+/* ============================================================
+   SETTINGS
+============================================================ */
+function saveSettings() {
+  const pass = document.getElementById('setPass').value;
+  const conf = document.getElementById('setPassConf').value;
+  if (pass && pass !== conf) { showToast('Password tidak cocok!','error'); return; }
+  showToast('Pengaturan disimpan!','success');
+}
+
+/* ============================================================
+   KEYBOARD
+============================================================ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+    closeConfirm();
+    closeSidebar();
+  }
+});
+</script>
+</body>
+</html>
